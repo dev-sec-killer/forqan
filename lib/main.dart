@@ -12,14 +12,14 @@ void main() {
 class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      title: 'Forqan',
-      theme: ThemeData(
-        primaryColor: Colors.cyanAccent,
-      ),
-      home: RepositoryProvider(
-        create: (context) => SourateListRepo(),
-        child: BlocProvider(
+    return RepositoryProvider(
+      create: (context) => SourateListRepo(),
+      child: MaterialApp(
+        title: 'Forqan',
+        theme: ThemeData(
+          primaryColor: Colors.cyanAccent,
+        ),
+        home: BlocProvider(
           create: (context) =>
               ListSourateCubit(sourateListRepo: context.read<SourateListRepo>())
                 ..getSourateList(isReverse: false),

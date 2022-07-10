@@ -83,6 +83,25 @@ flutter:
     - family: Aldhabi
       fonts: 
         - asset: assets/fonts/aldhabi.ttf
+    - family: Lateef
+      fonts: 
+        - asset: assets/fonts/Lateef-Regular.ttf
+    - family: ScheherazadeNew
+      fonts: 
+        - asset: assets/fonts/ScheherazadeNew-Bold.ttf
+        - asset: assets/fonts/ScheherazadeNew-Regular.ttf
+    - family: Mirza
+      fonts: 
+        - asset: assets/fonts/Mirza-Bold.ttf
+        - asset: assets/fonts/Mirza-Medium.ttf
+        - asset: assets/fonts/Mirza-Regular.ttf
+        - asset: assets/fonts/Mirza-SemiBold.ttf
+    - family: Amiri
+      fonts: 
+        - asset: assets/fonts/Amiri-Bold.ttf
+        - asset: assets/fonts/Amiri-BoldItalic.ttf
+        - asset: assets/fonts/Amiri-Italic.ttf
+        - asset: assets/fonts/Amiri-Regular.ttf
   #
   # For details regarding fonts from package dependencies,
   # see https://flutter.dev/custom-fonts/#from-packages

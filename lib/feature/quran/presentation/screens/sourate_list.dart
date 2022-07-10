@@ -1,23 +1,15 @@
-import 'dart:convert';
 import 'dart:math';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:forqan/feature/quran/presentation/screens/DisplayPage.dart';
 
 import 'package:google_fonts/google_fonts.dart';
 
 import '../../data/models/surah.dart';
-import '../../data/repositories/sourate_list_repo.dart';
 import '../bussiness_logic/cubit/list_sourate_cubit.dart';
 import 'reading_page.dart';
 
-class SourateList extends StatefulWidget {
-  @override
-  _SourateListState createState() => _SourateListState();
-}
-
-class _SourateListState extends State<SourateList>
-    with TickerProviderStateMixin {
+class SourateList extends StatelessWidget {
   int selectedIndex = 0;
   bool isReverse = false;
   ScrollController _controller = ScrollController();
@@ -37,6 +29,10 @@ class _SourateListState extends State<SourateList>
                     .getSourateList(isReverse: isReverse);
               }),
         ),
+        // actions: [
+        //   IconButton(
+        //       color: Colors.amber, onPressed: () {}, icon: Icon(Icons.pages))
+        // ],
       ),
       body: BlocBuilder<ListSourateCubit, ListSourateCubitState>(
         builder: (context, state) {
@@ -61,25 +57,32 @@ class _SourateListState extends State<SourateList>
     return ListView.separated(
       controller: _controller,
       itemBuilder: (context, index) => ListTile(
-        leading: CircleAvatar(
-          child: Text(chapters[index].id.toString()),
-        ),
-        title: Text(chapters[index].name),
-        subtitle: Text(chapters[index].versesCount.toString()),
-        trailing: Text(
-          chapters[index].arabicName,
-          style: GoogleFonts.cairo(
-            fontSize: 18,
+          leading: CircleAvatar(
+            child: Text(chapters[index].id.toString()),
           ),
-        ),
-        onTap: () => Navigator.push(
-          context,
-          MaterialPageRoute<void>(
-            builder: (BuildContext context) =>
-                SurahPage(surah: chapters[index]),
+          title: Text(chapters[index].name),
+          subtitle: Text(chapters[index].versesCount.toString()),
+          trailing: Text(
+            chapters[index].arabicName,
+            style: GoogleFonts.cairo(
+              fontSize: 18,
+            ),
           ),
-        ),
-      ),
+          onTap: () => Navigator.push(
+              context,
+              MaterialPageRoute<void>(
+                  builder: (BuildContext context) =>
+                      DisplayPage(surah: chapters[index], sourates: chapters
+                          //isReverse ? chapters : chapters.reversed.toList()
+                          )))
+          // Navigator.push(
+          //   context,
+          //   MaterialPageRoute<void>(
+          //     builder: (BuildContext context) =>
+          //         SurahPage(surah: chapters[index]),
+          //   ),
+          // ),
+          ),
       separatorBuilder: (context, index) => Divider(height: 1),
       itemCount: chapters.length,
     );
