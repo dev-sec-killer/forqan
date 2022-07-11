@@ -1,23 +1,83 @@
+import 'dart:developer';
+
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:forqan/feature/quran/core/enum.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:quran/quran.dart' as quran;
+import 'package:simple_gesture_detector/simple_gesture_detector.dart';
 
 import '../../data/models/surah.dart';
+import '../bussiness_logic/bloc/bloc_display_page/display_page_bloc.dart';
 
 class DisplayPage extends StatelessWidget {
-  final Surah surah;
-  final List<Surah> sourates;
-  late final int page;
-
-  DisplayPage({required this.surah, required this.sourates}) {
-    page = quran.getSurahPages(this.surah.id).first;
-  }
-  List<dynamic> pageDatas = [];
-  int count = 0;
   @override
   Widget build(BuildContext context) {
-    pageDatas = quran.getPageData(page);
-    count = pageDatas.length;
+    return BlocListener<DisplayPageBloc, DisplayPageState>(
+      listener: (context, state) {
+        if (state is DisplayPageFailed) {
+          ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+            backgroundColor: Colors.red,
+            content: Text(
+              state.error,
+              textDirection: TextDirection.rtl,
+              textAlign: TextAlign.center,
+              style: TextStyle(
+                fontSize: 20,
+              ),
+            ),
+          ));
+        }
+      },
+      child: BlocBuilder<DisplayPageBloc, DisplayPageState>(
+        builder: (context, state) {
+          if (state is DisplayPageLoaded) {
+            return SimpleGestureDetector(
+              onHorizontalSwipe: (direction) {
+                if (direction == SwipeDirection.left) {
+                  context.read<DisplayPageBloc>().add(DisplayPageSwipe(
+                      page: state.page,
+                      sourates: state.sourates,
+                      swipeDirection: SwipeDirectionEnum.left));
+                  print('Swiped left!');
+                } else {
+                  context.read<DisplayPageBloc>().add(DisplayPageSwipe(
+                      page: state.page,
+                      sourates: state.sourates,
+                      swipeDirection: SwipeDirectionEnum.right));
+                  print('Swiped right!');
+                }
+              },
+              swipeConfig: SimpleSwipeConfig(
+                verticalThreshold: 40.0,
+                horizontalThreshold: 40.0,
+                swipeDetectionBehavior:
+                    SwipeDetectionBehavior.continuousDistinct,
+              ),
+              child: quranPage(
+                  pageDatas: state.pageDatas,
+                  count: state.count,
+                  sourates: state.sourates),
+            );
+          }
+          if (state is DisplayPageLoading) {
+            return CircularProgressIndicator();
+          }
+          return Center(
+            child: Text(
+              "Erreur lors de la chargement de la page .",
+              style: Theme.of(context).textTheme.bodyText2,
+            ),
+          );
+        },
+      ),
+    );
+  }
+
+  Directionality quranPage(
+      {required int count,
+      required List pageDatas,
+      required List<Surah> sourates}) {
     return Directionality(
       textDirection: TextDirection.rtl,
       child: Scaffold(
@@ -33,7 +93,9 @@ class DisplayPage extends StatelessWidget {
                       pageData['start'] == 1
                           ? Padding(
                               padding: EdgeInsets.all(5),
-                              child: header(sourateId: pageData['surah']),
+                              child: header(
+                                  sourateId: pageData['surah'],
+                                  sourates: sourates),
                             )
                           : SizedBox.shrink(),
                       SizedBox(
@@ -63,7 +125,7 @@ class DisplayPage extends StatelessWidget {
                                     child: Text(
                                       '$i',
                                       textAlign: TextAlign.center,
-                                      textDirection: TextDirection.rtl,
+                                      // textDirection: TextDirection.rtl,
                                       textScaleFactor:
                                           i.toString().length <= 2 ? 1 : .8,
                                     ),
@@ -76,14 +138,6 @@ class DisplayPage extends StatelessWidget {
                     ],
                   );
                 }),
-                Text(
-                  quran.getVerse(18, 3, verseEndSymbol: true),
-                  style: TextStyle(
-                    fontFamily: 'Lateef',
-                    fontSize: 25,
-                    color: Colors.black87,
-                  ),
-                )
               ],
             ),
           ]),
@@ -92,7 +146,7 @@ class DisplayPage extends StatelessWidget {
     );
   }
 
-  Widget header({required int sourateId}) {
+  Widget header({required int sourateId, required List<Surah> sourates}) {
     return Container(
         child: Column(
       mainAxisSize: MainAxisSize.min,
