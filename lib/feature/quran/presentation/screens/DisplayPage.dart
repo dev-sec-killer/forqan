@@ -1,9 +1,10 @@
 import 'dart:developer';
 
+import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:forqan/feature/quran/core/enum.dart';
-import 'package:google_fonts/google_fonts.dart';
+import 'package:forqan/feature/quran/presentation/bussiness_logic/cubit/lesson_save_cubit.dart';
 import 'package:quran/quran.dart' as quran;
 import 'package:simple_gesture_detector/simple_gesture_detector.dart';
 
@@ -13,22 +14,50 @@ import '../bussiness_logic/bloc/bloc_display_page/display_page_bloc.dart';
 class DisplayPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    return BlocListener<DisplayPageBloc, DisplayPageState>(
-      listener: (context, state) {
-        if (state is DisplayPageFailed) {
-          ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-            backgroundColor: Colors.red,
-            content: Text(
-              state.error,
-              textDirection: TextDirection.rtl,
-              textAlign: TextAlign.center,
-              style: TextStyle(
-                fontSize: 20,
-              ),
-            ),
-          ));
-        }
-      },
+    return MultiBlocListener(
+      listeners: [
+        BlocListener<DisplayPageBloc, DisplayPageState>(
+          listener: (context, state) {
+            if (state is DisplayPageFailed) {
+              ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+                backgroundColor: Colors.red,
+                content: Text(
+                  state.error,
+                  textDirection: TextDirection.rtl,
+                  textAlign: TextAlign.center,
+                  style: TextStyle(
+                    fontSize: 20,
+                  ),
+                ),
+              ));
+            }
+          },
+        ),
+        BlocListener<LessonSaveCubit, LessonSaveCubitState>(
+          listener: (context, state) {
+            if (state is LessonSaveCubitStateSaved) {
+              print(state);
+              print(state.lessonLimit);
+              print(state.lessonLimit.length);
+              ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+                backgroundColor: Colors.red,
+                content: Text(
+                  "Début lesson: " +
+                      state.lessonLimit[0].toString() +
+                      "\n" +
+                      "Fin lesson : " +
+                      state.lessonLimit[1].toString(),
+                  textDirection: TextDirection.rtl,
+                  textAlign: TextAlign.center,
+                  style: TextStyle(
+                    fontSize: 20,
+                  ),
+                ),
+              ));
+            }
+          },
+        ),
+      ],
       child: BlocBuilder<DisplayPageBloc, DisplayPageState>(
         builder: (context, state) {
           if (state is DisplayPageLoaded) {
@@ -55,6 +84,7 @@ class DisplayPage extends StatelessWidget {
                     SwipeDetectionBehavior.continuousDistinct,
               ),
               child: quranPage(
+                  context: context,
                   pageDatas: state.pageDatas,
                   count: state.count,
                   sourates: state.sourates),
@@ -76,12 +106,13 @@ class DisplayPage extends StatelessWidget {
 
   Directionality quranPage(
       {required int count,
+      required BuildContext context,
       required List pageDatas,
       required List<Surah> sourates}) {
     return Directionality(
       textDirection: TextDirection.rtl,
       child: Scaffold(
-        appBar: AppBar(),
+        // appBar: AppBar(),
         body: SafeArea(
           minimum: EdgeInsets.all(15),
           child: ListView(children: [
@@ -89,6 +120,7 @@ class DisplayPage extends StatelessWidget {
               children: [
                 ...pageDatas.map((pageData) {
                   return Column(
+                    mainAxisSize: MainAxisSize.min,
                     children: [
                       pageData['start'] == 1
                           ? Padding(
@@ -109,16 +141,26 @@ class DisplayPage extends StatelessWidget {
                                 i <= pageData['end'];
                                 i++) ...{
                               TextSpan(
-                                text: ' ' +
-                                    quran.getVerse(pageData['surah'], i,
-                                        verseEndSymbol: true) +
-                                    ' ',
-                                style: TextStyle(
-                                  fontFamily: 'Amiri',
-                                  fontSize: 25,
-                                  color: Colors.black87,
-                                ),
-                              ),
+                                  text: ' ' +
+                                      quran.getVerse(pageData['surah'], i,
+                                          verseEndSymbol: false) +
+                                      ' ',
+                                  style: TextStyle(
+                                    fontFamily: 'Amiri',
+                                    fontSize: 25,
+                                    color: Colors.black87,
+                                  ),
+                                  recognizer: TapGestureRecognizer()
+                                    ..onTap = () {
+                                      context
+                                          .read<LessonSaveCubit>()
+                                          .markLesson(
+                                              numAyat: i,
+                                              numSourate: pageData['surah']);
+                                      log("ayat: " +
+                                          quran.getVerse(pageData['surah'], i,
+                                              verseEndSymbol: false));
+                                    }),
                               WidgetSpan(
                                   alignment: PlaceholderAlignment.middle,
                                   child: CircleAvatar(
@@ -148,6 +190,7 @@ class DisplayPage extends StatelessWidget {
 
   Widget header({required int sourateId, required List<Surah> sourates}) {
     return Container(
+        // height: 88,
         child: Column(
       mainAxisSize: MainAxisSize.min,
       children: [

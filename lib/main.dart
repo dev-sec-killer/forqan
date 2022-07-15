@@ -15,6 +15,7 @@ class MyApp extends StatelessWidget {
     return RepositoryProvider(
       create: (context) => SourateListRepo(),
       child: MaterialApp(
+        debugShowCheckedModeBanner: false,
         title: 'Forqan',
         theme: ThemeData(
           primaryColor: Colors.cyanAccent,

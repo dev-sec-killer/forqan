@@ -2,13 +2,13 @@ import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:forqan/feature/quran/presentation/bussiness_logic/bloc/bloc_display_page/display_page_bloc.dart';
+import 'package:forqan/feature/quran/presentation/bussiness_logic/cubit/lesson_save_cubit.dart';
 import 'package:forqan/feature/quran/presentation/screens/DisplayPage.dart';
 
 import 'package:google_fonts/google_fonts.dart';
 
 import '../../data/models/surah.dart';
 import '../bussiness_logic/cubit/list_sourate_cubit.dart';
-import 'reading_page.dart';
 
 class SourateList extends StatelessWidget {
   int selectedIndex = 0;
@@ -72,10 +72,17 @@ class SourateList extends StatelessWidget {
           onTap: () => Navigator.push(
               context,
               MaterialPageRoute<void>(
-                  builder: (BuildContext context) => BlocProvider(
-                        create: (context) => DisplayPageBloc()
-                          ..add(DisplayPageEventLoad(
-                              sourates: chapters, surah: chapters[index])),
+                  builder: (BuildContext context) => MultiBlocProvider(
+                        providers: [
+                          BlocProvider(
+                            create: (context) => DisplayPageBloc()
+                              ..add(DisplayPageEventLoad(
+                                  sourates: chapters, surah: chapters[index])),
+                          ),
+                          BlocProvider(
+                            create: (context) => LessonSaveCubit(),
+                          ),
+                        ],
                         child: DisplayPage(
                             //   surah: chapters[index], sourates: chapters
                             //isReverse ? chapters : chapters.reversed.toList()

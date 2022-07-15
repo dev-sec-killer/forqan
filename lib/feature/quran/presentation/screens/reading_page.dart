@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:quran/quran.dart' as quran;
 
 import '../../data/models/surah.dart';
