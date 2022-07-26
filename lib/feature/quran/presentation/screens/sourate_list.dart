@@ -8,6 +8,7 @@ import 'package:forqan/feature/quran/presentation/screens/DisplayPage.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 import '../../data/models/surah.dart';
+import '../bussiness_logic/bloc/bloc_display_page/display_page_event.dart';
 import '../bussiness_logic/cubit/list_sourate_cubit.dart';
 
 class SourateList extends StatelessWidget {
@@ -69,25 +70,24 @@ class SourateList extends StatelessWidget {
               fontSize: 18,
             ),
           ),
-          onTap: () => Navigator.push(
-              context,
-              MaterialPageRoute<void>(
-                  builder: (BuildContext context) => MultiBlocProvider(
-                        providers: [
-                          BlocProvider(
-                            create: (context) => DisplayPageBloc()
-                              ..add(DisplayPageEventLoad(
-                                  sourates: chapters, surah: chapters[index])),
-                          ),
-                          BlocProvider(
-                            create: (context) => LessonSaveCubit(),
-                          ),
-                        ],
-                        child: DisplayPage(
-                            //   surah: chapters[index], sourates: chapters
-                            //isReverse ? chapters : chapters.reversed.toList()
+          onTap: () {
+            context.read<DisplayPageBloc>().add(DisplayPageEventLoad(
+                sourates: chapters, surah: chapters[index]));
+            Navigator.push(
+                context,
+                MaterialPageRoute<void>(
+                    builder: (BuildContext context) => MultiBlocProvider(
+                          providers: [
+                            BlocProvider(
+                              create: (context) => LessonSaveCubit(),
                             ),
-                      )))
+                          ],
+                          child: DisplayPage(
+                              //   surah: chapters[index], sourates: chapters
+                              //isReverse ? chapters : chapters.reversed.toList()
+                              ),
+                        )));
+          }
           // Navigator.push(
           //   context,
           //   MaterialPageRoute<void>(

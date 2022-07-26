@@ -1,4 +1,7 @@
-part of 'display_page_bloc.dart';
+import 'package:equatable/equatable.dart';
+
+import '../../../../core/enum.dart';
+import '../../../../data/models/surah.dart';
 
 abstract class DisplayPageEvent extends Equatable {
   const DisplayPageEvent();
